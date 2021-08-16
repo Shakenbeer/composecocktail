@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Compose Cocktail</string>
+
+    <string name="bottom_nav_favorites_title">Favorites</string>
+    <string name="bottom_nav_ingredients_title">Ingredients</string>
+    <string name="bottom_nav_categories_title">Categories</string>
+
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="server_error">Server error</string>
+    <string name="no_categories_found">No categories found</string>
+    <string name="no_ingredients_found">No ingredients found</string>
+    <string name="no_drinks_found">No drinks found</string>
+
+    <string name="content_description_category_icon">Category icon</string>
+    <string name="content_description_ingredient">Ingredient description</string>
+    <string name="content_description_photo_of_drink">Photo of drink</string>
+
+    <string name="retry">Retry</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+</resources>
