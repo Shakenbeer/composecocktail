@@ -17,12 +17,14 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
     @Provides
+    @Singleton
     fun provideRestService(): TheCocktailDBService {
         return provideRetrofit().create(TheCocktailDBService::class.java)
     }
@@ -48,6 +50,7 @@ object NetworkModule {
 
     //TODO rid of deprecation using {@link android.net.ConnectivityManager.NetworkCallback} API
     @Provides
+    @Singleton
     fun provideConnectivity(@ApplicationContext context: Context): Connectivity {
         return object : Connectivity {
             override fun isConnectedToInternet(): Boolean {

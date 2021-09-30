@@ -1,5 +1,6 @@
 package com.shakenbeer.composecocktail.ui
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import com.shakenbeer.composecocktail.R
 import com.shakenbeer.composecocktail.ui.category.Categories
 import com.shakenbeer.composecocktail.ui.category.CategoriesScreen
 import com.shakenbeer.composecocktail.ui.category.CategoriesViewModel
+import com.shakenbeer.composecocktail.ui.drink.*
 import com.shakenbeer.composecocktail.ui.ingredient.IngredientsScreen
 import com.shakenbeer.composecocktail.ui.theme.ComposeCocktailTheme
 
@@ -43,12 +45,30 @@ fun CocktailApp() {
             ) { innerPadding ->
                 NavHost(
                     navController,
-                    startDestination = Screen.Categories.route,
+                    startDestination = Screen.Tab.Categories.route,
                     Modifier.padding(innerPadding)
                 ) {
-                    composable(Screen.Categories.route) { CategoriesScreen() }
-                    composable(Screen.Ingredients.route) { IngredientsScreen() }
-                    composable(Screen.Favorites.route) { Text("Favorites screen") }
+                    composable(Screen.Tab.Categories.route) { CategoriesScreen(navController) }
+                    composable(Screen.Tab.Ingredients.route) { IngredientsScreen(navController) }
+                    composable(Screen.Tab.Favorites.route) {
+                        DrinksScreen(DrinksFilter(FAVORITE, ""))
+                    }
+                    composable(Screen.Drinks.ByCategory.route) { backStackEntry ->
+                        DrinksScreen(
+                            DrinksFilter(
+                                CATEGORY,
+                                backStackEntry.arguments?.getString(name)?.slash() ?: ""
+                            )
+                        )
+                    }
+                    composable(Screen.Drinks.ByIngredient.route) { backStackEntry ->
+                        DrinksScreen(
+                            DrinksFilter(
+                                INGREDIENT,
+                                backStackEntry.arguments?.getString(name)?.slash() ?: ""
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -63,9 +83,12 @@ private fun CocktailsBottomBar(navController: NavHostController) {
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
+        currentDestination?.hierarchy?.forEachIndexed { i, dest ->
+            Log.d("CCK", "$i " + (dest.route ?: "NULL"))
+        }
         topItems.forEach { screen ->
             BottomNavigationItem(
-                selected =currentDestination?.route == screen.route,
+                selected = currentDestination?.route?.startsWith(screen.route) == true,
                 onClick = {
                     navController.navigate(screen.route) {
                         // Pop up to the start destination of the graph to

@@ -9,8 +9,9 @@ import com.shakenbeer.composecocktail.db.DrinkDao
 import com.shakenbeer.composecocktail.entity.Drink
 import com.shakenbeer.composecocktail.rest.TheCocktailDBService
 import com.shakenbeer.composecocktail.rest.model.ApiDrink
+import javax.inject.Inject
 
-class DrinkComposeRepository(
+class DrinkComposeRepository @Inject constructor(
     private val drinkDao: DrinkDao,
     private val restService: TheCocktailDBService,
     private val connectivity: Connectivity

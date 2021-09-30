@@ -4,8 +4,9 @@ import com.shakenbeer.composecocktail.GetDrinksParam
 import com.shakenbeer.composecocktail.Result
 import com.shakenbeer.composecocktail.entity.Drink
 import com.shakenbeer.composecocktail.repository.DrinkRepository
+import javax.inject.Inject
 
-class GetDrinksUseCase(private val drinkRepository: DrinkRepository) {
+class GetDrinksUseCase @Inject constructor(private val drinkRepository: DrinkRepository) {
 
     fun execute(getDrinksParam: GetDrinksParam): Result<List<Drink>> {
         return when (getDrinksParam.type) {

@@ -16,14 +16,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.shakenbeer.composecocktail.R
+import com.shakenbeer.composecocktail.ui.Screen
 import com.shakenbeer.composecocktail.ui.common.Loading
 import com.shakenbeer.composecocktail.ui.common.Trouble
 import com.shakenbeer.composecocktail.ui.theme.ComposeCocktailTheme
 
 @ExperimentalFoundationApi
 @Composable
-fun CategoriesScreen(categoriesViewModel: CategoriesViewModel = hiltViewModel()) {
+fun CategoriesScreen(
+    navController: NavController,
+    categoriesViewModel: CategoriesViewModel = hiltViewModel()
+) {
 
     val state: CategoriesViewState
             by categoriesViewModel.categories.observeAsState(LoadingState)
@@ -44,7 +50,10 @@ fun CategoriesScreen(categoriesViewModel: CategoriesViewModel = hiltViewModel())
                 message = stringResource(R.string.no_categories_found)
             )
             is DisplayState -> {
-                Categories(it.categories)
+                Categories(
+                    { category -> navController.navigate(Screen.Drinks.ByCategory.route(category)) },
+                    it.categories
+                )
             }
         }
     }
@@ -52,21 +61,21 @@ fun CategoriesScreen(categoriesViewModel: CategoriesViewModel = hiltViewModel())
 
 @ExperimentalFoundationApi
 @Composable
-fun Categories(categories: List<CategoryDisplayItem>) {
+fun Categories(onNavigate: (String) -> Unit, categories: List<CategoryDisplayItem>) {
     LazyColumn {
         categories.forEach { category ->
             item {
-                Category(category)
+                Category(onNavigate, category)
             }
         }
     }
 }
 
 @Composable
-fun Category(item: CategoryDisplayItem) {
+fun Category(onNavigate: (String) -> Unit, item: CategoryDisplayItem) {
     Row(
         modifier = Modifier
-            .clickable { }
+            .clickable { onNavigate(item.name) }
             .fillMaxWidth()
             .height(56.dp)
             .padding(16.dp, 0.dp),
@@ -88,7 +97,7 @@ fun Category(item: CategoryDisplayItem) {
 @Composable
 fun CategoryItemPreview() {
     ComposeCocktailTheme {
-        Category(CategoryDisplayItem("Cocktail", R.drawable.ic_glass_cocktail_24dp))
+        Category({}, CategoryDisplayItem("Cocktail", R.drawable.ic_glass_cocktail_24dp))
     }
 }
 

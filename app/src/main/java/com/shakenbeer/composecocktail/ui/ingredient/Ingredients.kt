@@ -31,13 +31,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shakenbeer.composecocktail.R
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.shakenbeer.composecocktail.ui.Screen
 import com.shakenbeer.composecocktail.ui.common.Loading
 import com.shakenbeer.composecocktail.ui.common.Trouble
 import com.shakenbeer.composecocktail.ui.theme.ComposeCocktailTheme
 
 @ExperimentalFoundationApi
 @Composable
-fun IngredientsScreen(ingredientsViewModel: IngredientsViewModel = hiltViewModel()) {
+fun IngredientsScreen(
+    navController: NavController,
+    ingredientsViewModel: IngredientsViewModel = hiltViewModel()) {
 
     Log.d("CCK", "IngredientsScreen: ")
 
@@ -60,28 +64,31 @@ fun IngredientsScreen(ingredientsViewModel: IngredientsViewModel = hiltViewModel
                 message = stringResource(R.string.no_ingredients_found)
             )
             is DisplayState -> {
-                Ingredients(it.ingredients)
+                Ingredients(
+                    { ingredient -> navController.navigate(Screen.Drinks.ByIngredient.route(ingredient)) },
+                    it.ingredients
+                )
             }
         }
     }
 }
 
 @Composable
-fun Ingredients(ingredients: List<IngredientDisplayItem>) {
+fun Ingredients(onNavigate: (String) -> Unit, ingredients: List<IngredientDisplayItem>) {
     LazyColumn {
         ingredients.forEach { ingredient ->
             item {
-                Ingredient(ingredient)
+                Ingredient(onNavigate, ingredient)
             }
         }
     }
 }
 
 @Composable
-fun Ingredient(item: IngredientDisplayItem) {
+fun Ingredient(onNavigate: (String) -> Unit, item: IngredientDisplayItem) {
     Row(
         modifier = Modifier
-            .clickable { }
+            .clickable { onNavigate(item.name) }
             .fillMaxWidth()
             .height(56.dp)
             .padding(16.dp, 0.dp),
@@ -114,6 +121,6 @@ fun Ingredient(item: IngredientDisplayItem) {
 @Composable
 fun IngredientPreview() {
     ComposeCocktailTheme {
-        Ingredient(item = IngredientDisplayItem("Applejack", "A"))
+        Ingredient({}, item = IngredientDisplayItem("Applejack", "A"))
     }
 }
