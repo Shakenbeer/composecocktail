@@ -43,8 +43,6 @@ fun IngredientsScreen(
     navController: NavController,
     ingredientsViewModel: IngredientsViewModel = hiltViewModel()) {
 
-    Log.d("CCK", "IngredientsScreen: ")
-
     val state: IngredientsViewState
             by ingredientsViewModel.ingredients.observeAsState(LoadingState)
 

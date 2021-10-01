@@ -10,10 +10,12 @@
     <string name="no_categories_found">No categories found</string>
     <string name="no_ingredients_found">No ingredients found</string>
     <string name="no_drinks_found">No drinks found</string>
+    <string name="no_drink_details_found">No drink\'s details found</string>
 
     <string name="content_description_category_icon">Category icon</string>
     <string name="content_description_ingredient">Ingredient description</string>
     <string name="content_description_photo_of_drink">Photo of drink</string>
+    <string name="content_description_favorite_icon">Favorite Icon</string>
 
     <string name="retry">Retry</string>
     <string name="email">Email</string>

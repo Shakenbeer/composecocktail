@@ -3,6 +3,7 @@ package com.shakenbeer.composecocktail.ui.drink
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
@@ -20,12 +21,18 @@ import com.shakenbeer.composecocktail.ui.common.Loading
 import com.shakenbeer.composecocktail.ui.common.Trouble
 import androidx.compose.material.Text
 import androidx.compose.ui.Alignment
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.shakenbeer.composecocktail.ui.Screen
 import com.shakenbeer.composecocktail.ui.theme.transparentIndigoDark
 
 @ExperimentalFoundationApi
 @Composable
-fun DrinksScreen(drinksFilter: DrinksFilter, drinksViewModel: DrinksViewModel = hiltViewModel()) {
+fun DrinksScreen(
+    navController: NavController,
+    drinksFilter: DrinksFilter,
+    drinksViewModel: DrinksViewModel = hiltViewModel()
+) {
 
     drinksViewModel.onModeDefined(drinksFilter)
 
@@ -47,7 +54,30 @@ fun DrinksScreen(drinksFilter: DrinksFilter, drinksViewModel: DrinksViewModel = 
                 message = stringResource(R.string.no_drinks_found)
             )
             is DisplayState -> {
-                Drinks(it.drinks)
+                Drinks(
+                    { drinkId: String ->
+                        when (drinksFilter.type) {
+                            CATEGORY -> navController.navigate(
+                                Screen.DetailedDrink.FromCategory.route(
+                                    drinksFilter.filter,
+                                    drinkId
+                                )
+                            )
+                            INGREDIENT -> navController.navigate(
+                                Screen.DetailedDrink.FromIngredient.route(
+                                    drinksFilter.filter,
+                                    drinkId
+                                )
+                            )
+                            FAVORITE -> navController.navigate(
+                                Screen.DetailedDrink.FromFavorites.route(
+                                    drinkId = drinkId
+                                )
+                            )
+                        }
+                    },
+                    it.drinks
+                )
             }
         }
     }
@@ -55,22 +85,23 @@ fun DrinksScreen(drinksFilter: DrinksFilter, drinksViewModel: DrinksViewModel = 
 
 @ExperimentalFoundationApi
 @Composable
-fun Drinks(drinks: List<DrinkDisplayItem>) {
+fun Drinks(onNavigate: (String) -> Unit, drinks: List<DrinkDisplayItem>) {
     LazyVerticalGrid(
         cells = GridCells.Fixed(2),
         contentPadding = PaddingValues(4.dp, 8.dp)
     ) {
         drinks.forEach { drink ->
             item {
-                Drink(drink)
+                Drink(onNavigate, drink)
             }
         }
     }
 }
 
 @Composable
-fun Drink(drink: DrinkDisplayItem) {
+fun Drink(onNavigate: (String) -> Unit, drink: DrinkDisplayItem) {
     Box(modifier = Modifier
+        .clickable { onNavigate(drink.id) }
         .fillMaxWidth()
         .aspectRatio(1.0f)
         .padding(4.dp)) {

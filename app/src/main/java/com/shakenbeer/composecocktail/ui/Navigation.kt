@@ -7,7 +7,9 @@ import com.shakenbeer.composecocktail.R
 const val categories = "categories"
 const val ingredients = "ingredients"
 const val favorites = "favorites"
+const val drink = "drink"
 const val name = "name"
+const val drinkId = "drinkId"
 
 sealed class Screen(val route: String) {
 
@@ -17,7 +19,6 @@ sealed class Screen(val route: String) {
         @DrawableRes val iconId: Int = 0
     ) :
         Screen(route) {
-
 
         object Categories : Tab(
             categories, R.string.bottom_nav_categories_title,
@@ -39,10 +40,25 @@ sealed class Screen(val route: String) {
         object ByCategory : Drinks(categories)
         object ByIngredient : Drinks(ingredients)
 
-        fun route(param: String): String {
-            return "$parent/${param.deslash()}"
+        fun route(name: String): String {
+            return "$parent/${name.deslash()}"
         }
     }
+
+    sealed class DetailedDrink(private val parent: String) : Screen("$parent/{$name}/{$drinkId}") {
+        object FromCategory : DetailedDrink(categories)
+        object FromIngredient : DetailedDrink(ingredients)
+        object FromFavorites : DetailedDrink(favorites)
+
+        fun route(name: String = "", drinkId: String): String {
+            return if (name.isNotEmpty()) {
+                "$parent/${name.deslash()}/$drinkId"
+            } else {
+                "$parent/$drinkId"
+            }
+        }
+    }
+
 }
 
 private const val slashKeeper = "439972"

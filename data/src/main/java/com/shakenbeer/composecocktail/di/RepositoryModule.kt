@@ -21,7 +21,12 @@ abstract class RepositoryModule {
     ): IngredientRepository
 
     @Binds
-    abstract fun bindIngredientsRepository(
+    abstract fun bindDrinkRepository(
         drinkComposeRepository: DrinkComposeRepository
     ): DrinkRepository
+
+    @Binds
+    abstract fun bindDrinkDetailsRepository(
+        detailedDrinkComposeRepository: DetailedDrinkComposeRepository
+    ): DetailedDrinkRepository
 }
