@@ -20,8 +20,7 @@ import javax.inject.Inject
 class DetailedDrinkViewModel @Inject constructor(
     private val getDetailedDrinkUseCase: GetDetailedDrinkUseCase,
     private val makeFavoriteDrinkUseCase: MakeFavoriteDrinkUseCase
-) :
-    ViewModel() {
+) : ViewModel() {
 
     //We need property for Dispatchers.IO to replace it in tests
     //until issue https://github.com/Kotlin/kotlinx.coroutines/issues/982 fixed
@@ -34,7 +33,6 @@ class DetailedDrinkViewModel @Inject constructor(
     }
 
     private lateinit var drinkId: String
-    private lateinit var currentDrink: DetailedDrink
 
     internal fun onDrinkId(drinkId: String) {
         this.drinkId = drinkId
@@ -47,8 +45,7 @@ class DetailedDrinkViewModel @Inject constructor(
                 withContext(ioDispatcher) { getDetailedDrinkUseCase.execute(drinkId) }) {
                 is Success ->
                     if (result.value != DetailedDrink.NO_DETAILS) {
-                        currentDrink = result.value
-                        _drink.value = DisplayState(toDisplayItem(result.value))
+                        _drink.value = DisplayState(result.value)
                     } else {
                         _drink.value = NoDetailsState
                     }
@@ -69,30 +66,17 @@ class DetailedDrinkViewModel @Inject constructor(
     }
 
     fun onFavoriteClick() {
-        if (::currentDrink.isInitialized) {
-            val isFavorite = currentDrink.isFavorite
-            viewModelScope.launch {
-                val drinkResult = withContext(ioDispatcher) {
-                    makeFavoriteDrinkUseCase.execute(!isFavorite, currentDrink)
-                }
-                if (drinkResult is Success) {
-                    _drink.value = DisplayState(toDisplayItem(drinkResult.value))
+        _drink.value?.let { state ->
+            if (state is DisplayState) {
+                viewModelScope.launch {
+                    val drinkResult = withContext(ioDispatcher) {
+                        makeFavoriteDrinkUseCase.execute(state.drink)
+                    }
+                    if (drinkResult is Success) {
+                        _drink.value = DisplayState(drinkResult.value)
+                    }
                 }
             }
-        }
-    }
-
-    private fun toDisplayItem(value: DetailedDrink): DetailedDrinkDisplayItem {
-        return with(value) {
-            DetailedDrinkDisplayItem(
-                name = name,
-                thumbUrl = thumbUrl,
-                details = listOf(iba, if (alcoholic) "Alcoholic" else "Non alcoholic", glass)
-                    .filter { it.isNotBlank() }.joinToString("\n"),
-                ingredients = ingredients.joinToString("\n"),
-                instruction = instruction,
-                isFavorite = isFavorite
-            )
         }
     }
 }

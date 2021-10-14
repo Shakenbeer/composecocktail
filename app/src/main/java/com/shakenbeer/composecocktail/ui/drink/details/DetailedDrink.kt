@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.shakenbeer.composecocktail.R
@@ -37,26 +39,27 @@ fun DetailedDrinkScreen(
         when (it) {
             is LoadingState -> Loading()
             is NoInternetState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_wifi_off_24dp),
+                icon = R.drawable.ic_wifi_off_24dp,
                 message = stringResource(R.string.no_internet_connection)
-            )
+            ) { detailedDrinkViewModel.loadDrink() }
             is ErrorState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_alert_circle_24dp),
+                icon = R.drawable.ic_alert_circle_24dp,
                 message = it.message
-            )
+            ) { detailedDrinkViewModel.loadDrink() }
             is NoDetailsState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_cup_off_24dp),
+                icon = R.drawable.ic_cup_off_24dp,
                 message = stringResource(R.string.no_drink_details_found)
-            )
-            is DisplayState -> DetailedDrink(it.drink)
+            ) { detailedDrinkViewModel.loadDrink() }
+            is DisplayState -> DetailedDrink(it.drink) {
+                detailedDrinkViewModel.onFavoriteClick()
+            }
         }
     }
 }
 
 @Composable
-fun DetailedDrink(drink: DetailedDrinkDisplayItem) {
+fun DetailedDrink(drink: DetailedDrink, favoritesClick: () -> Unit) {
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        //TODO replace with constrainLayout or use nested Box in order to align text and icon
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -73,25 +76,40 @@ fun DetailedDrink(drink: DetailedDrinkDisplayItem) {
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
             )
-            Text(
-                text = drink.name,
+            Box(
                 modifier = Modifier
-                    .background(transparentIndigoDark)
-                    .padding(8.dp)
                     .fillMaxWidth()
-                    .wrapContentHeight()
-                    .align(Alignment.BottomStart),
-                color = MaterialTheme.colors.onPrimary,
-                style = MaterialTheme.typography.body2
-            )
-            //TODO continue with favorites here
-//            Icon(
-//                modifier = Modifier
-//                    .align(Alignment.BottomEnd),
-//                painter = painterResource(id = R.drawable.ic_heart_outline_24dp),
-//                contentDescription = stringResource(id = R.string.content_description_favorite_icon),
-//                tint = MaterialTheme.colors.onPrimary
-//            )
+                    .background(transparentIndigoDark)
+                    .align(Alignment.BottomCenter)
+            ) {
+                Text(
+                    text = drink.name,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .align(Alignment.CenterStart),
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colors.onPrimary,
+                    style = MaterialTheme.typography.body2
+                )
+                IconButton(
+                    onClick = { favoritesClick() },
+                    modifier = Modifier
+                        .width(48.dp)
+                        .align(Alignment.CenterEnd)
+                ) {
+                    Icon(
+                        modifier = Modifier,
+                        painter = painterResource(
+                            id = if (drink.isFavorite) R.drawable.ic_favorite_24dp
+                            else R.drawable.ic_heart_outline_24dp
+                        ),
+                        contentDescription = stringResource(id = R.string.content_description_favorite_icon),
+                        tint = MaterialTheme.colors.onPrimary
+                    )
+                }
+            }
         }
         Row(
             Modifier
@@ -107,7 +125,7 @@ fun DetailedDrink(drink: DetailedDrinkDisplayItem) {
                 style = MaterialTheme.typography.body1
             )
             Text(
-                text = drink.ingredients,
+                text = drink.displayIngredients,
                 style = MaterialTheme.typography.body1
             )
         }

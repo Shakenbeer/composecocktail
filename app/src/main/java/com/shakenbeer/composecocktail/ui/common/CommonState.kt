@@ -28,14 +28,14 @@ fun Loading() {
 }
 
 @Composable
-fun Trouble(painter: Painter, message: String) {
+fun Trouble(@DrawableRes icon: Int, message: String, action: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            painter = painter, contentDescription = null,
+            painter = painterResource(icon), contentDescription = null,
             modifier = Modifier.size(128.dp),
             tint = MaterialTheme.colors.secondary
         )
@@ -43,7 +43,7 @@ fun Trouble(painter: Painter, message: String) {
         Spacer(modifier = Modifier.size(0.dp, 16.dp))
         Button(
             colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary),
-            onClick = { /*TODO*/ }) {
+            onClick = { action() }) {
             Text(text = stringResource(id = R.string.retry).uppercase())
         }
     }
@@ -53,6 +53,6 @@ fun Trouble(painter: Painter, message: String) {
 @Composable
 fun TroublePreview() {
     ComposeCocktailTheme {
-        Trouble(rememberVectorPainter(image = Icons.Filled.ThumbUp), "No categories found")
+        Trouble(R.drawable.ic_tonic_skull_24dp, "No categories found") {}
     }
 }

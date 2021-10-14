@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.shakenbeer.composecocktail.ui.Screen
+import com.shakenbeer.composecocktail.ui.favorites
 import com.shakenbeer.composecocktail.ui.theme.transparentIndigoDark
 
 @ExperimentalFoundationApi
@@ -42,17 +43,17 @@ fun DrinksScreen(
         when (it) {
             is LoadingState -> Loading()
             is NoInternetState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_wifi_off_24dp),
+                icon = R.drawable.ic_wifi_off_24dp,
                 message = stringResource(R.string.no_internet_connection)
-            )
+            ) { drinksViewModel.loadDrinks() }
             is ErrorState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_alert_circle_24dp),
+                icon = R.drawable.ic_alert_circle_24dp,
                 message = it.message
-            )
+            ) { drinksViewModel.loadDrinks() }
             is NoDrinksState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_cup_off_24dp),
+                icon = R.drawable.ic_cup_off_24dp,
                 message = stringResource(R.string.no_drinks_found)
-            )
+            ) { drinksViewModel.loadDrinks() }
             is DisplayState -> {
                 Drinks(
                     { drinkId: String ->
@@ -71,7 +72,8 @@ fun DrinksScreen(
                             )
                             FAVORITE -> navController.navigate(
                                 Screen.DetailedDrink.FromFavorites.route(
-                                    drinkId = drinkId
+                                    favorites,
+                                    drinkId
                                 )
                             )
                         }

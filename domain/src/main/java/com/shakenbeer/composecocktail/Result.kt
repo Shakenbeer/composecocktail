@@ -1,6 +1,6 @@
 package com.shakenbeer.composecocktail
 
-sealed class Result<out T>
+sealed class  Result<out T>
 
 class Success<out T>(val value: T) : Result<T>()
 

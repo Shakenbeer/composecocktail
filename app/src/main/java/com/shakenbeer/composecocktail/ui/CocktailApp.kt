@@ -78,6 +78,11 @@ fun CocktailApp() {
                             drinkId = backStackEntry.arguments?.getString(drinkId) ?: ""
                         )
                     }
+                    composable(Screen.DetailedDrink.FromFavorites.route) { backStackEntry ->
+                        DetailedDrinkScreen(
+                            drinkId = backStackEntry.arguments?.getString(drinkId) ?: ""
+                        )
+                    }
                 }
             }
         }
@@ -92,9 +97,6 @@ private fun CocktailsBottomBar(navController: NavHostController) {
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
-        currentDestination?.hierarchy?.forEachIndexed { i, dest ->
-            Log.d("CCK", "$i " + (dest.route ?: "NULL"))
-        }
         topItems.forEach { screen ->
             BottomNavigationItem(
                 selected = currentDestination?.route?.startsWith(screen.route) == true,

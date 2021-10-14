@@ -27,18 +27,14 @@ class DetailedDrinkComposeRepository @Inject constructor(
         }
     }
 
-    override fun addFavoriteDrink(drink: DetailedDrink): Result<DetailedDrink> {
-        drinkDao.addFavorite(
-            drinkToDb(drink)
-        )
-        return Success(drink.copy(isFavorite = true))
-    }
-
-    override fun removeFavoriteDrink(drink: DetailedDrink): Result<DetailedDrink> {
-        drinkDao.removeFavorite(
-            drinkToDb(drink)
-        )
-        return Success(drink.copy(isFavorite = false))
+    override fun toggleFavorite(drink: DetailedDrink): Result<DetailedDrink> {
+        return if (drinkDao.findFavorite(drink.id) == null) {
+            drinkDao.addFavorite(drinkToDb(drink))
+            Success(drink.copy(isFavorite = true))
+        } else {
+            drinkDao.removeFavorite( drinkToDb(drink))
+            Success(drink.copy(isFavorite = false))
+        }
     }
 
     private fun map(drinks: List<ApiDetailedDrink>?): Result<DetailedDrink> {

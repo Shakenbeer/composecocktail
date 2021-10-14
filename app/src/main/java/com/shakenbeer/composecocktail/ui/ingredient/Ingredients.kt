@@ -41,7 +41,8 @@ import com.shakenbeer.composecocktail.ui.theme.ComposeCocktailTheme
 @Composable
 fun IngredientsScreen(
     navController: NavController,
-    ingredientsViewModel: IngredientsViewModel = hiltViewModel()) {
+    ingredientsViewModel: IngredientsViewModel = hiltViewModel()
+) {
 
     val state: IngredientsViewState
             by ingredientsViewModel.ingredients.observeAsState(LoadingState)
@@ -50,20 +51,26 @@ fun IngredientsScreen(
         when (it) {
             is LoadingState -> Loading()
             is NoInternetState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_wifi_off_24dp),
+                icon = R.drawable.ic_wifi_off_24dp,
                 message = stringResource(R.string.no_internet_connection)
-            )
+            ) { ingredientsViewModel.loadIngredients() }
             is ErrorState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_alert_circle_24dp),
+                icon = R.drawable.ic_alert_circle_24dp,
                 message = it.message
-            )
+            ) { ingredientsViewModel.loadIngredients() }
             is NoIngredientsState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_cup_off_24dp),
+                icon = R.drawable.ic_cup_off_24dp,
                 message = stringResource(R.string.no_ingredients_found)
-            )
+            ) { ingredientsViewModel.loadIngredients() }
             is DisplayState -> {
                 Ingredients(
-                    { ingredient -> navController.navigate(Screen.Drinks.ByIngredient.route(ingredient)) },
+                    { ingredient ->
+                        navController.navigate(
+                            Screen.Drinks.ByIngredient.route(
+                                ingredient
+                            )
+                        )
+                    },
                     it.ingredients
                 )
             }
@@ -104,7 +111,8 @@ fun Ingredient(onNavigate: (String) -> Unit, item: IngredientDisplayItem) {
                 fontFamily = FontFamily.SansSerif,
                 fontWeight = FontWeight.Black,
                 fontSize = 24.sp,
-                text = item.abbr)
+                text = item.abbr
+            )
         }
 
 

@@ -11,6 +11,10 @@ data class DetailedDrink(
     val ingredients: List<String>,
     val isFavorite: Boolean
 ) {
+    val details = listOf(iba, if (alcoholic) "Alcoholic" else "Non alcoholic", glass)
+        .filter { it.isNotBlank() }.joinToString("\n")
+
+    val displayIngredients = ingredients.joinToString("\n")
 
     companion object {
         val NO_DETAILS = DetailedDrink("", "", "", "", "", "", true, emptyList(), false)

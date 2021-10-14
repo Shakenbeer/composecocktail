@@ -50,12 +50,8 @@ sealed class Screen(val route: String) {
         object FromIngredient : DetailedDrink(ingredients)
         object FromFavorites : DetailedDrink(favorites)
 
-        fun route(name: String = "", drinkId: String): String {
-            return if (name.isNotEmpty()) {
-                "$parent/${name.deslash()}/$drinkId"
-            } else {
-                "$parent/$drinkId"
-            }
+        fun route(name: String, drinkId: String): String {
+            return "$parent/${name.deslash()}/$drinkId"
         }
     }
 

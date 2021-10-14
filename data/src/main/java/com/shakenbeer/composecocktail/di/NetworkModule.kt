@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import com.google.gson.GsonBuilder
-import com.shakenbeer.composecocktail.BuildConfig
+import com.shakenbeer.composecocktail.data.BuildConfig
 import com.shakenbeer.composecocktail.Const
 import com.shakenbeer.composecocktail.connectivity.Connectivity
 import com.shakenbeer.composecocktail.rest.TheCocktailDBService

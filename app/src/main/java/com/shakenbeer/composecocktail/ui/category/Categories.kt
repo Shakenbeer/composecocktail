@@ -17,7 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.shakenbeer.composecocktail.R
 import com.shakenbeer.composecocktail.ui.Screen
 import com.shakenbeer.composecocktail.ui.common.Loading
@@ -38,17 +37,17 @@ fun CategoriesScreen(
         when (it) {
             is LoadingState -> Loading()
             is NoInternetState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_wifi_off_24dp),
+                icon = R.drawable.ic_wifi_off_24dp,
                 message = stringResource(R.string.no_internet_connection)
-            )
+            ) { categoriesViewModel.loadCategories() }
             is ErrorState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_alert_circle_24dp),
+                icon = R.drawable.ic_alert_circle_24dp,
                 message = it.message
-            )
+            ) { categoriesViewModel.loadCategories() }
             is NoCategoriesState -> Trouble(
-                painter = painterResource(id = R.drawable.ic_cup_off_24dp),
+                icon = R.drawable.ic_cup_off_24dp,
                 message = stringResource(R.string.no_categories_found)
-            )
+            ) { categoriesViewModel.loadCategories() }
             is DisplayState -> {
                 Categories(
                     { category -> navController.navigate(Screen.Drinks.ByCategory.route(category)) },
