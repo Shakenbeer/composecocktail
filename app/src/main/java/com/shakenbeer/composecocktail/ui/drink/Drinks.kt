@@ -8,35 +8,29 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.rememberImagePainter
 import com.shakenbeer.composecocktail.R
 import com.shakenbeer.composecocktail.ui.common.Loading
 import com.shakenbeer.composecocktail.ui.common.Trouble
-import androidx.compose.material.Text
-import androidx.compose.ui.Alignment
-import androidx.navigation.NavController
-import coil.compose.rememberImagePainter
-import com.shakenbeer.composecocktail.ui.Screen
-import com.shakenbeer.composecocktail.ui.favorites
 import com.shakenbeer.composecocktail.ui.theme.transparentIndigoDark
 
+@ExperimentalCoilApi
 @ExperimentalFoundationApi
 @Composable
 fun DrinksScreen(
     navController: NavController,
-    drinksFilter: DrinksFilter,
-    drinksViewModel: DrinksViewModel = hiltViewModel()
+    drinksViewModel: DrinksViewModel
 ) {
-
-    drinksViewModel.onModeDefined(drinksFilter)
-
     val state: DrinksViewState by drinksViewModel.drinks.observeAsState(LoadingState)
 
     state.let {
@@ -56,28 +50,7 @@ fun DrinksScreen(
             ) { drinksViewModel.loadDrinks() }
             is DisplayState -> {
                 Drinks(
-                    { drinkId: String ->
-                        when (drinksFilter.type) {
-                            CATEGORY -> navController.navigate(
-                                Screen.DetailedDrink.FromCategory.route(
-                                    drinksFilter.filter,
-                                    drinkId
-                                )
-                            )
-                            INGREDIENT -> navController.navigate(
-                                Screen.DetailedDrink.FromIngredient.route(
-                                    drinksFilter.filter,
-                                    drinkId
-                                )
-                            )
-                            FAVORITE -> navController.navigate(
-                                Screen.DetailedDrink.FromFavorites.route(
-                                    favorites,
-                                    drinkId
-                                )
-                            )
-                        }
-                    },
+                    { drinkId: String -> drinksViewModel.navigateTo(navController, drinkId) },
                     it.drinks
                 )
             }
@@ -85,6 +58,7 @@ fun DrinksScreen(
     }
 }
 
+@ExperimentalCoilApi
 @ExperimentalFoundationApi
 @Composable
 fun Drinks(onNavigate: (String) -> Unit, drinks: List<DrinkDisplayItem>) {
@@ -100,6 +74,7 @@ fun Drinks(onNavigate: (String) -> Unit, drinks: List<DrinkDisplayItem>) {
     }
 }
 
+@ExperimentalCoilApi
 @Composable
 fun Drink(onNavigate: (String) -> Unit, drink: DrinkDisplayItem) {
     Box(modifier = Modifier

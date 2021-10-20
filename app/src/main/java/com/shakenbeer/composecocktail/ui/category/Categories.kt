@@ -23,7 +23,6 @@ import com.shakenbeer.composecocktail.ui.common.Loading
 import com.shakenbeer.composecocktail.ui.common.Trouble
 import com.shakenbeer.composecocktail.ui.theme.ComposeCocktailTheme
 
-@ExperimentalFoundationApi
 @Composable
 fun CategoriesScreen(
     navController: NavController,
@@ -58,7 +57,6 @@ fun CategoriesScreen(
     }
 }
 
-@ExperimentalFoundationApi
 @Composable
 fun Categories(onNavigate: (String) -> Unit, categories: List<CategoryDisplayItem>) {
     LazyColumn {

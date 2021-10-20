@@ -1,22 +1,24 @@
 package com.shakenbeer.composecocktail.ui.drink
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import androidx.navigation.NavController
 import com.shakenbeer.composecocktail.GetDrinksParam
 import com.shakenbeer.composecocktail.Success
 import com.shakenbeer.composecocktail.Error
+import com.shakenbeer.composecocktail.ui.Screen
+import com.shakenbeer.composecocktail.ui.favorites
 import com.shakenbeer.composecocktail.usecase.GetDrinksUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class DrinksViewModel @Inject constructor(private val getDrinksUseCase: GetDrinksUseCase)
+class DrinksViewModel @AssistedInject constructor(
+    @Assisted private val getDrinksParam: GetDrinksParam,
+    private val getDrinksUseCase: GetDrinksUseCase)
     : ViewModel() {
 
     //We need property for Dispatchers.IO to replace it in tests
@@ -27,22 +29,6 @@ class DrinksViewModel @Inject constructor(private val getDrinksUseCase: GetDrink
     val drinks: LiveData<DrinksViewState> by lazy {
         loadDrinks()
         _drinks
-    }
-
-    private lateinit var getDrinksParam: GetDrinksParam
-
-    internal fun onResume() {
-        if (::getDrinksParam.isInitialized && getDrinksParam.type == GetDrinksParam.Type.FAVORITE) {
-            loadDrinks()
-        }
-    }
-
-    internal fun onModeDefined(drinksFilter: DrinksFilter) {
-        getDrinksParam = when (drinksFilter.type) {
-            CATEGORY -> GetDrinksParam(GetDrinksParam.Type.CATEGORY, drinksFilter.filter)
-            INGREDIENT -> GetDrinksParam(GetDrinksParam.Type.INGREDIENT, drinksFilter.filter)
-            else -> GetDrinksParam(GetDrinksParam.Type.FAVORITE)
-        }
     }
 
     internal fun loadDrinks() {
@@ -69,6 +55,46 @@ class DrinksViewModel @Inject constructor(private val getDrinksUseCase: GetDrink
                             ErrorState("Server error")
                         }
                     }
+            }
+        }
+    }
+
+    internal fun navigateTo(navController: NavController, drinkId: String) {
+        when (getDrinksParam.type) {
+            GetDrinksParam.Type.CATEGORY -> navController.navigate(
+                Screen.DetailedDrink.FromCategory.route(
+                    getDrinksParam.value,
+                    drinkId
+                )
+            )
+            GetDrinksParam.Type.INGREDIENT -> navController.navigate(
+                Screen.DetailedDrink.FromIngredient.route(
+                    getDrinksParam.value,
+                    drinkId
+                )
+            )
+            GetDrinksParam.Type.FAVORITE -> navController.navigate(
+                Screen.DetailedDrink.FromFavorites.route(
+                    favorites,
+                    drinkId
+                )
+            )
+        }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(getDrinksParam: GetDrinksParam): DrinksViewModel
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    companion object {
+        fun provideFactory(
+            assistedFactory: Factory,
+            getDrinksParam: GetDrinksParam
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return assistedFactory.create(getDrinksParam) as T
             }
         }
     }
