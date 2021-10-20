@@ -38,7 +38,7 @@ class DetailedDrinkComposeRepository @Inject constructor(
     }
 
     private fun map(drinks: List<ApiDetailedDrink>?): Result<DetailedDrink> {
-        val favorites = drinkDao.getFavorites()
+        val favorites = drinkDao.getFavoritesSync()
         with(drinks?.first()) {
             if (this != null && idDrink != null && strDrink != null &&
                 strDrinkThumb != null && strInstructions != null

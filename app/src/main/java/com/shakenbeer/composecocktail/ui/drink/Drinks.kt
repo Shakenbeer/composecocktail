@@ -23,7 +23,9 @@ import com.shakenbeer.composecocktail.R
 import com.shakenbeer.composecocktail.ui.common.Loading
 import com.shakenbeer.composecocktail.ui.common.Trouble
 import com.shakenbeer.composecocktail.ui.theme.transparentIndigoDark
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@ExperimentalCoroutinesApi
 @ExperimentalCoilApi
 @ExperimentalFoundationApi
 @Composable

@@ -5,6 +5,7 @@ import com.shakenbeer.composecocktail.rest.model.ApiDetailedDrinks
 import com.shakenbeer.composecocktail.rest.model.ApiDrinks
 import com.shakenbeer.composecocktail.rest.model.ApiIngredients
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -17,10 +18,10 @@ interface TheCocktailDBService {
     fun getIngredients(@Query("i") i: String = "list"): Call<ApiIngredients>
 
     @GET("filter.php")
-    fun getDrinksByCategory(@Query("c") categoryName: String): Call<ApiDrinks>
+    suspend fun getDrinksByCategory(@Query("c") categoryName: String): Response<ApiDrinks>
 
     @GET("filter.php")
-    fun getDrinksByIngredient(@Query("i") ingredientName: String): Call<ApiDrinks>
+    suspend fun getDrinksByIngredient(@Query("i") ingredientName: String): Response<ApiDrinks>
 
     @GET("lookup.php")
     fun getDrinkById(@Query("i") id: String): Call<ApiDetailedDrinks>

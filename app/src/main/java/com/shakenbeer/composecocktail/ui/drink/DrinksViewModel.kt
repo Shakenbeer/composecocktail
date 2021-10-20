@@ -1,62 +1,67 @@
 package com.shakenbeer.composecocktail.ui.drink
 
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.navigation.NavController
+import com.shakenbeer.composecocktail.Error
 import com.shakenbeer.composecocktail.GetDrinksParam
 import com.shakenbeer.composecocktail.Success
-import com.shakenbeer.composecocktail.Error
 import com.shakenbeer.composecocktail.ui.Screen
 import com.shakenbeer.composecocktail.ui.favorites
-import com.shakenbeer.composecocktail.usecase.GetDrinksUseCase
+import com.shakenbeer.composecocktail.usecase.GetDrinksByCategoryUseCase
+import com.shakenbeer.composecocktail.usecase.GetDrinksByIngredientUseCase
+import com.shakenbeer.composecocktail.usecase.GetFavoritesDrinksUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 
 class DrinksViewModel @AssistedInject constructor(
     @Assisted private val getDrinksParam: GetDrinksParam,
-    private val getDrinksUseCase: GetDrinksUseCase)
-    : ViewModel() {
+    getDrinksByCategoryUseCase: GetDrinksByCategoryUseCase,
+    getDrinksByIngredientUseCase: GetDrinksByIngredientUseCase,
+    getFavoritesDrinksUseCase: GetFavoritesDrinksUseCase
+) : ViewModel() {
 
-    //We need property for Dispatchers.IO to replace it in tests
-    //until issue https://github.com/Kotlin/kotlinx.coroutines/issues/982 fixed
-    var ioDispatcher = Dispatchers.IO
+    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).also { it.tryEmit(Unit) }
 
-    private val _drinks = MutableLiveData<DrinksViewState>()
-    val drinks: LiveData<DrinksViewState> by lazy {
-        loadDrinks()
-        _drinks
-    }
-
-    internal fun loadDrinks() {
-        _drinks.value = LoadingState
-        viewModelScope.launch {
-            when (val result =
-                withContext(ioDispatcher) { getDrinksUseCase.execute(getDrinksParam) }) {
-                is Success -> _drinks.value =
-                    if (result.value.isNotEmpty()) {
-                        DisplayState(result.value
-                            .map { DrinkDisplayItem(it.id, it.name, it.thumbUrl) })
-                    } else {
-                        NoDrinksState
-                    }
-                is Error -> _drinks.value =
-                    when (result.reason) {
-                        Error.Reason.NO_INTERNET -> NoInternetState
-                        else -> {
-                            Log.e(
-                                "DrinksViewModel",
-                                result.throwable.localizedMessage,
-                                result.throwable
-                            )
-                            ErrorState("Server error")
-                        }
-                    }
+    @ExperimentalCoroutinesApi
+    val drinks: LiveData<DrinksViewState> = refreshTrigger.flatMapLatest {
+        when (getDrinksParam.type) {
+            GetDrinksParam.Type.CATEGORY -> getDrinksByCategoryUseCase(getDrinksParam.value)
+            GetDrinksParam.Type.INGREDIENT -> getDrinksByIngredientUseCase(getDrinksParam.value)
+            GetDrinksParam.Type.FAVORITE -> getFavoritesDrinksUseCase()
+        }
+    }.map { result ->
+        when (result) {
+            is Success -> if (result.value.isNotEmpty()) {
+                DisplayState(result.value
+                    .map { DrinkDisplayItem(it.id, it.name, it.thumbUrl) })
+            } else {
+                NoDrinksState
+            }
+            is Error -> when (result.reason) {
+                Error.Reason.NO_INTERNET -> NoInternetState
+                else -> {
+                    Log.e(
+                        "DrinksViewModel",
+                        result.throwable.localizedMessage,
+                        result.throwable
+                    )
+                    ErrorState("Server error")
+                }
             }
         }
+    }.asLiveData()
+
+    internal fun loadDrinks() {
+        refreshTrigger.tryEmit(Unit)
     }
 
     internal fun navigateTo(navController: NavController, drinkId: String) {

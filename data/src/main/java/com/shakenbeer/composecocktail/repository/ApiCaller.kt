@@ -5,8 +5,11 @@ import com.shakenbeer.composecocktail.Error
 import com.shakenbeer.composecocktail.Result
 import com.shakenbeer.composecocktail.Success
 import com.shakenbeer.composecocktail.connectivity.Connectivity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import okhttp3.ResponseBody
 import retrofit2.Call
+import retrofit2.Response
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
@@ -33,6 +36,35 @@ fun <T> callApi(connectivity: Connectivity, call: Call<T>): Result<T> {
         }
     } else {
         return Error(Error.Reason.NO_INTERNET, Throwable("No internet connection"))
+    }
+}
+
+fun <T> callApi(connectivity: Connectivity, call: suspend () -> Response<T>): Flow<Result<T>> {
+    return flow {
+        if (connectivity.isConnectedToInternet()) {
+            try {
+                val response = call()
+                if (response.isSuccessful) {
+                    emit(response.body()?.let { Success(it) } ?: Error(
+                        Error.Reason.API_ERROR, Throwable("Unknown API error")
+                    ))
+                } else {
+                    emit(parseApiError(response.errorBody()))
+                }
+            } catch (ex: Exception) {
+                emit(
+                    if (ex is SocketTimeoutException || ex is UnknownHostException) {
+                        Error(Error.Reason.NO_INTERNET, ex)
+                    } else if (ex is JsonParseException) {
+                        Error(Error.Reason.API_MODEL_PARSING, ex)
+                    } else {
+                        Error(Error.Reason.UNKNOWN, ex)
+                    }
+                )
+            }
+        } else {
+            emit(Error(Error.Reason.NO_INTERNET, Throwable("No internet connection")))
+        }
     }
 }
 

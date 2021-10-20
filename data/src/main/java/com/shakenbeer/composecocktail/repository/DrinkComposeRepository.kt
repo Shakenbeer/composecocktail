@@ -9,6 +9,8 @@ import com.shakenbeer.composecocktail.db.DrinkDao
 import com.shakenbeer.composecocktail.entity.Drink
 import com.shakenbeer.composecocktail.rest.TheCocktailDBService
 import com.shakenbeer.composecocktail.rest.model.ApiDrink
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class DrinkComposeRepository @Inject constructor(
@@ -17,28 +19,29 @@ class DrinkComposeRepository @Inject constructor(
     private val connectivity: Connectivity
 ) : DrinkRepository {
     @WorkerThread
-    override fun getDrinksByCategory(categoryName: String): Result<List<Drink>> {
-        return when (val result =
-            callApi(connectivity, restService.getDrinksByCategory(categoryName))) {
-            is Success -> map(result.value.drinks)
-            is Error -> result
+    override fun getDrinksByCategory(categoryName: String): Flow<Result<List<Drink>>> {
+        return callApi(connectivity) { restService.getDrinksByCategory(categoryName) }.map {
+            when (it) {
+                is Success -> map(it.value.drinks)
+                is Error -> it
+            }
         }
     }
 
     @WorkerThread
-    override fun getDrinksByIngredient(ingredientName: String): Result<List<Drink>> {
-        return when (val result =
-            callApi(connectivity, restService.getDrinksByIngredient(ingredientName))) {
-            is Success -> map(result.value.drinks)
-            is Error -> result
+    override fun getDrinksByIngredient(ingredientName: String): Flow<Result<List<Drink>>> {
+        return callApi(connectivity) { restService.getDrinksByIngredient(ingredientName) }.map {
+            when (it) {
+                is Success -> map(it.value.drinks)
+                is Error -> it
+            }
         }
     }
 
     @WorkerThread
-    override fun getFavoriteDrinks(): Result<List<Drink>> {
-        return Success(
-            drinkDao.getFavorites().map { Drink(it.id, it.name, it.thumbUrl) }
-        )
+    override fun getFavoriteDrinks(): Flow<Result<List<Drink>>> {
+        return drinkDao.getFavorites().map { list -> Success(list.map { Drink(it.id, it.name, it.thumbUrl)  }) }
+
     }
 
     private fun map(apiList: List<ApiDrink>?): Result<List<Drink>> {
