@@ -98,7 +98,7 @@ class DrinksViewModel @AssistedInject constructor(
             assistedFactory: Factory,
             getDrinksParam: GetDrinksParam
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return assistedFactory.create(getDrinksParam) as T
             }
         }
