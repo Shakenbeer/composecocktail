@@ -24,6 +24,7 @@ class DetailedDrinkViewModel @Inject constructor(
 
     //We need property for Dispatchers.IO to replace it in tests
     //until issue https://github.com/Kotlin/kotlinx.coroutines/issues/982 fixed
+    @Suppress("MemberVisibilityCanBePrivate")
     var ioDispatcher = Dispatchers.IO
 
     private val _drink = MutableLiveData<DetailedDrinkViewState>()

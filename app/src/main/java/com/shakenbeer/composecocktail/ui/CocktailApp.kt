@@ -27,7 +27,9 @@ import com.shakenbeer.composecocktail.ui.drink.details.DetailedDrinkScreen
 import com.shakenbeer.composecocktail.ui.ingredient.IngredientsScreen
 import com.shakenbeer.composecocktail.ui.theme.ComposeCocktailTheme
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExperimentalCoilApi
 @ExperimentalFoundationApi
 @Composable

@@ -26,12 +26,16 @@ fun <T> callApi(connectivity: Connectivity, call: Call<T>): Result<T> {
                 parseApiError(response.errorBody())
             }
         } catch (ex: Exception) {
-            return if (ex is SocketTimeoutException || ex is UnknownHostException) {
-                Error(Error.Reason.NO_INTERNET, ex)
-            } else if (ex is JsonParseException) {
-                Error(Error.Reason.API_MODEL_PARSING, ex)
-            } else {
-                Error(Error.Reason.UNKNOWN, ex)
+            return when (ex) {
+                is SocketTimeoutException, is UnknownHostException -> {
+                    Error(Error.Reason.NO_INTERNET, ex)
+                }
+                is JsonParseException -> {
+                    Error(Error.Reason.API_MODEL_PARSING, ex)
+                }
+                else -> {
+                    Error(Error.Reason.UNKNOWN, ex)
+                }
             }
         }
     } else {
@@ -53,12 +57,16 @@ fun <T> callApi(connectivity: Connectivity, call: suspend () -> Response<T>): Fl
                 }
             } catch (ex: Exception) {
                 emit(
-                    if (ex is SocketTimeoutException || ex is UnknownHostException) {
-                        Error(Error.Reason.NO_INTERNET, ex)
-                    } else if (ex is JsonParseException) {
-                        Error(Error.Reason.API_MODEL_PARSING, ex)
-                    } else {
-                        Error(Error.Reason.UNKNOWN, ex)
+                    when (ex) {
+                        is SocketTimeoutException, is UnknownHostException -> {
+                            Error(Error.Reason.NO_INTERNET, ex)
+                        }
+                        is JsonParseException -> {
+                            Error(Error.Reason.API_MODEL_PARSING, ex)
+                        }
+                        else -> {
+                            Error(Error.Reason.UNKNOWN, ex)
+                        }
                     }
                 )
             }

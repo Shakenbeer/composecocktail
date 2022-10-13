@@ -6,6 +6,7 @@ class ApiDetailedDrinks(
     val drinks: List<ApiDetailedDrink>?
 )
 
+@Suppress("unused", "unused", "unused", "unused", "unused", "unused", "unused")
 class ApiDetailedDrink(
         val idDrink: String?,
         val strDrink: String?,
