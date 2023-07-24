@@ -1,6 +1,9 @@
 package com.shakenbeer.composecocktail.ui
 
 import android.app.Activity
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -11,7 +14,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -59,7 +64,9 @@ fun CocktailApp() {
                         )
                     )
                 }
-                composable(Screen.Drinks.ByCategory.route) { backStackEntry ->
+                animatedComposable(
+                    route = Screen.Drinks.ByCategory.route
+                ) { backStackEntry ->
                     DrinksScreen(
                         navController,
                         drinksViewModel(
@@ -70,7 +77,9 @@ fun CocktailApp() {
                         )
                     )
                 }
-                composable(Screen.Drinks.ByIngredient.route) { backStackEntry ->
+                animatedComposable(
+                    route = Screen.Drinks.ByIngredient.route
+                ) { backStackEntry ->
                     DrinksScreen(
                         navController,
                         drinksViewModel(
@@ -81,12 +90,16 @@ fun CocktailApp() {
                         )
                     )
                 }
-                composable(Screen.DetailedDrink.FromCategory.route) { backStackEntry ->
+                animatedComposable(
+                    route = Screen.DetailedDrink.FromCategory.route
+                ) { backStackEntry ->
                     DetailedDrinkScreen(
                         drinkId = backStackEntry.arguments?.getString(drinkId) ?: ""
                     )
                 }
-                composable(Screen.DetailedDrink.FromIngredient.route) { backStackEntry ->
+                animatedComposable(
+                    route = Screen.DetailedDrink.FromIngredient.route
+                ) { backStackEntry ->
                     DetailedDrinkScreen(
                         drinkId = backStackEntry.arguments?.getString(drinkId) ?: ""
                     )
@@ -99,6 +112,41 @@ fun CocktailApp() {
             }
         }
     }
+}
+
+
+private fun NavGraphBuilder.animatedComposable(
+    route: String,
+    content: @Composable() (AnimatedContentScope.(NavBackStackEntry) -> Unit)
+) {
+    composable(
+        route = route,
+        enterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(700)
+            )
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(700)
+            )
+        },
+        popEnterTransition = {
+            slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(700)
+            )
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(700)
+            )
+        },
+        content = content
+    )
 }
 
 @Composable
