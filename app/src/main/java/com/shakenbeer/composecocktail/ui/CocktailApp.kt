@@ -18,7 +18,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil.annotation.ExperimentalCoilApi
-import com.google.accompanist.insets.ProvideWindowInsets
 import com.shakenbeer.composecocktail.GetDrinksParam
 import com.shakenbeer.composecocktail.R
 import com.shakenbeer.composecocktail.ui.category.CategoriesScreen
@@ -34,70 +33,68 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalFoundationApi
 @Composable
 fun CocktailApp() {
-    ProvideWindowInsets {
-        ComposeCocktailTheme {
-            val navController = rememberNavController()
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = { Text(text = stringResource(id = R.string.app_name)) }
+    ComposeCocktailTheme {
+        val navController = rememberNavController()
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(text = stringResource(id = R.string.app_name)) }
+                )
+            },
+            bottomBar = {
+                CocktailsBottomBar(navController)
+            }
+        ) { innerPadding ->
+            NavHost(
+                navController,
+                startDestination = Screen.Tab.Categories.route,
+                Modifier.padding(innerPadding)
+            ) {
+                composable(Screen.Tab.Categories.route) { CategoriesScreen(navController) }
+                composable(Screen.Tab.Ingredients.route) { IngredientsScreen(navController) }
+                composable(Screen.Tab.Favorites.route) {
+                    DrinksScreen(
+                        navController, drinksViewModel(
+                            GetDrinksParam(GetDrinksParam.Type.FAVORITE, "")
+                        )
                     )
-                },
-                bottomBar = {
-                    CocktailsBottomBar(navController)
                 }
-            ) { innerPadding ->
-                NavHost(
-                    navController,
-                    startDestination = Screen.Tab.Categories.route,
-                    Modifier.padding(innerPadding)
-                ) {
-                    composable(Screen.Tab.Categories.route) { CategoriesScreen(navController) }
-                    composable(Screen.Tab.Ingredients.route) { IngredientsScreen(navController) }
-                    composable(Screen.Tab.Favorites.route) {
-                        DrinksScreen(
-                            navController, drinksViewModel(
-                                GetDrinksParam(GetDrinksParam.Type.FAVORITE, "")
+                composable(Screen.Drinks.ByCategory.route) { backStackEntry ->
+                    DrinksScreen(
+                        navController,
+                        drinksViewModel(
+                            GetDrinksParam(
+                                GetDrinksParam.Type.CATEGORY,
+                                backStackEntry.arguments?.getString(name)?.slash() ?: ""
                             )
                         )
-                    }
-                    composable(Screen.Drinks.ByCategory.route) { backStackEntry ->
-                        DrinksScreen(
-                            navController,
-                            drinksViewModel(
-                                GetDrinksParam(
-                                    GetDrinksParam.Type.CATEGORY,
-                                    backStackEntry.arguments?.getString(name)?.slash() ?: ""
-                                )
+                    )
+                }
+                composable(Screen.Drinks.ByIngredient.route) { backStackEntry ->
+                    DrinksScreen(
+                        navController,
+                        drinksViewModel(
+                            GetDrinksParam(
+                                GetDrinksParam.Type.INGREDIENT,
+                                backStackEntry.arguments?.getString(name)?.slash() ?: ""
                             )
                         )
-                    }
-                    composable(Screen.Drinks.ByIngredient.route) { backStackEntry ->
-                        DrinksScreen(
-                            navController,
-                            drinksViewModel(
-                                GetDrinksParam(
-                                    GetDrinksParam.Type.INGREDIENT,
-                                    backStackEntry.arguments?.getString(name)?.slash() ?: ""
-                                )
-                            )
-                        )
-                    }
-                    composable(Screen.DetailedDrink.FromCategory.route) { backStackEntry ->
-                        DetailedDrinkScreen(
-                            drinkId = backStackEntry.arguments?.getString(drinkId) ?: ""
-                        )
-                    }
-                    composable(Screen.DetailedDrink.FromIngredient.route) { backStackEntry ->
-                        DetailedDrinkScreen(
-                            drinkId = backStackEntry.arguments?.getString(drinkId) ?: ""
-                        )
-                    }
-                    composable(Screen.DetailedDrink.FromFavorites.route) { backStackEntry ->
-                        DetailedDrinkScreen(
-                            drinkId = backStackEntry.arguments?.getString(drinkId) ?: ""
-                        )
-                    }
+                    )
+                }
+                composable(Screen.DetailedDrink.FromCategory.route) { backStackEntry ->
+                    DetailedDrinkScreen(
+                        drinkId = backStackEntry.arguments?.getString(drinkId) ?: ""
+                    )
+                }
+                composable(Screen.DetailedDrink.FromIngredient.route) { backStackEntry ->
+                    DetailedDrinkScreen(
+                        drinkId = backStackEntry.arguments?.getString(drinkId) ?: ""
+                    )
+                }
+                composable(Screen.DetailedDrink.FromFavorites.route) { backStackEntry ->
+                    DetailedDrinkScreen(
+                        drinkId = backStackEntry.arguments?.getString(drinkId) ?: ""
+                    )
                 }
             }
         }
