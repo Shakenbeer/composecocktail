@@ -15,4 +15,12 @@
     <string name="content_description_favorite_icon">Favorite Icon</string>
 
     <string name="retry">Retry</string>
+    <string name="app_widget_description">This is an app widget description</string>
+
+    <!-- Common texts-->
+    <string name="sample_app_name">LayoutSamples</string>
+    <string name="sample_action_list_settings_label">Settings</string>
+    <string name="sample_refresh_icon_button_label">Refresh</string>
+    <string name="sample_no_data_text">No data</string>
+    <string name="sample_learn_more_button_text">Learn more</string>
 </resources>

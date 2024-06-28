@@ -4,9 +4,15 @@ import android.app.Activity
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,11 +28,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import coil.annotation.ExperimentalCoilApi
 import com.shakenbeer.composecocktail.GetDrinksParam
 import com.shakenbeer.composecocktail.R
 import com.shakenbeer.composecocktail.ui.category.CategoriesScreen
-import com.shakenbeer.composecocktail.ui.drink.*
+import com.shakenbeer.composecocktail.ui.drink.DrinksScreen
+import com.shakenbeer.composecocktail.ui.drink.DrinksViewModel
 import com.shakenbeer.composecocktail.ui.drink.details.DetailedDrinkScreen
 import com.shakenbeer.composecocktail.ui.ingredient.IngredientsScreen
 import com.shakenbeer.composecocktail.ui.theme.ComposeCocktailTheme
@@ -34,8 +40,6 @@ import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExperimentalCoilApi
-@ExperimentalFoundationApi
 @Composable
 fun CocktailApp() {
     ComposeCocktailTheme {
@@ -190,8 +194,6 @@ private fun CocktailsBottomBar(navController: NavHostController) {
     }
 }
 
-@ExperimentalCoilApi
-@ExperimentalFoundationApi
 @Composable
 fun drinksViewModel(getDrinksParam: GetDrinksParam): DrinksViewModel {
     val factory = EntryPointAccessors.fromActivity(

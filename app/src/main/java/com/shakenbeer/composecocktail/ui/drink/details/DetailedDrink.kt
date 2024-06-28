@@ -2,7 +2,15 @@ package com.shakenbeer.composecocktail.ui.drink.details
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
@@ -14,12 +22,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.shakenbeer.composecocktail.R
 import com.shakenbeer.composecocktail.entity.DetailedDrink
 import com.shakenbeer.composecocktail.ui.common.Loading
@@ -67,12 +77,13 @@ fun DetailedDrink(drink: DetailedDrink, favoritesClick: () -> Unit) {
                 .aspectRatio(1.0f)
         ) {
             Image(
-                painter = rememberImagePainter(
-                    data = drink.thumbUrl,
-                    builder = {
-                        crossfade(true)
-                        placeholder(R.drawable.cocktail_placeholder)
-                    }),
+                painter = rememberAsyncImagePainter(
+                    ImageRequest.Builder(LocalContext.current).data(data = drink.thumbUrl)
+                        .apply(block = fun ImageRequest.Builder.() {
+                            crossfade(true)
+                            placeholder(R.drawable.cocktail_placeholder)
+                        }).build()
+                ),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
             )

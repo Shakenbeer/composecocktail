@@ -37,6 +37,14 @@ class DetailedDrinkComposeRepository @Inject constructor(
         }
     }
 
+    override fun getRandomDrink(): Result<DetailedDrink> {
+        return when (val result =
+            callApi(connectivity, restService.getRandomDrink())) {
+            is Success -> map(result.value.drinks)
+            is Error -> result
+        }
+    }
+
     private fun map(drinks: List<ApiDetailedDrink>?): Result<DetailedDrink> {
         val favorites = drinkDao.getFavoritesSync()
         with(drinks?.first()) {

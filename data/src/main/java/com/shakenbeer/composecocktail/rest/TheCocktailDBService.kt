@@ -26,4 +26,7 @@ interface TheCocktailDBService {
     @GET("lookup.php")
     fun getDrinkById(@Query("i") id: String): Call<ApiDetailedDrinks>
 
+    @GET("random.php")
+    fun getRandomDrink(): Call<ApiDetailedDrinks>
+
 }
